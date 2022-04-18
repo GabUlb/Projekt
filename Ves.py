@@ -5,10 +5,12 @@
 # vesOkjekt = vesClass(vesStr = nejakyTvojVesString)
 # 
 # Pre vratenie obrazku je to:
-# obrazokVPamati = vesOkjekt.giveImage(scale = kolkoKratZvacseny)
+# obrazokVPamati = vesOkjekt.getImage(scale = kolkoKratZvacseny)
 # Bez scale alebo scale = 1 obrazok vrati vo velkosti zadanej v riadku s VES
 # Pre scale > 1 obrazok zvacsi a pre scale < 1 obrazok zmensi (vynasobi sirku a vysku so scale)
 # Obrazok vrati ako BytesIO
+# 
+# Priklad na konci suboru pod if(__name__ == "__main__")...
 
 from time import time
 from PIL import Image
