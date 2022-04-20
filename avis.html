@@ -19,25 +19,25 @@
 
     <div class="row">
         <div class="block">
-            <form>
+            <!-- <form> -->
                 <div class="block">
-                    <div class="input">
+                    <!-- <div class="input">
                         <label for="file">FILE</label>
                         <textarea id="file" rows="1"></textarea>
-                    </div>
-                    <div class="input">
+                    </div> -->
+                    <form id="vesForm" class="input" action="/render" method="POST">
                         <label for="ves">VES CODE</label>
                         <textarea id="ves" rows="18"></textarea>
-                    </div>
-                    <button type="submit">SUBMIT</button>
+                        <button type="submit">SUBMIT</button>
+                    </form>
                 </div>
-            </form>
+            <!-- </form> -->
         </div>
 
-        <canvas id="canvas" width="650" height="380"></canvas>
+        <img id="canvas" width="650" height="380"></img>
 
         <div id="controls">  
-                <div class="lightBorder">
+                <!-- <div class="lightBorder">
                     <div class="row">
                         <p><label>Fill:</label></p>
                         <br>
@@ -71,8 +71,8 @@
                     <p><label>Polygon Sides: <input id="polygonSides" type="range" step="1" min="3" max="4"></label></p>
                 </div>
 
-                <br>
-                <button id="clearCanvas" type="button">Clear</button>
+                <br> -->
+                <button id="clearCanvas" type="button" onclick="clearCanvas()">Clear</button>
                 <br>
                 <br>
                 <button type="button">B&W</button> 
