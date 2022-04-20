@@ -135,21 +135,51 @@ function init() {
     // strokeColor.addEventListener('input', changeStrokeStyle, false);
     // clearCanvas.addEventListener('click', eraseCanvas, false);
     document.getElementById("vesForm").addEventListener("submit", handleSubmit);
-    document.getElementById("ves").value = "VES 1.0 650 380"
-    document.getElementById("vesForm").getElementsByTagName("button")[0].click()
+    clearCanvas()
 }
 
 function clearCanvas(){
-    document.getElementById("ves").value = "VES 1.0 650 380"
+    document.getElementById("ves").value = "VES 1.0 800 500"
+    document.getElementById("vesForm").getElementsByTagName("button")[0].click()
+}
+
+function showExample(){
+    document.getElementById("ves").value = `VES v1.0 600 400
+CLEAR #A3D0D4
+#USI
+FILL_CIRCLE 230 120 40 #000000
+FILL_CIRCLE 235 125 20 #FFC1CB
+FILL_CIRCLE 370 120 40 #000000
+FILL_CIRCLE 365 125 20 #FFC1CB
+#TELO
+FILL_CIRCLE 300 380 130 #000000
+FILL_CIRCLE 300 420 90 #FFFFFF
+#HLAVA
+FILL_CIRCLE 300 200 100 #FFFFFF
+CIRCLE 300 200 100 10 #000000
+#LAVE OKO
+FILL_CIRCLE 260 180 30 #000000
+FILL_CIRCLE 250 170 10 #FFFFFF
+FILL_CIRCLE 265 185 5 #FFFFFF
+#PRAVE OKO
+FILL_CIRCLE 340 180 30 #000000
+FILL_CIRCLE 330 170 10 #FFFFFF
+FILL_CIRCLE 345 185 5 #FFFFFF
+#NOS
+FILL_TRIANGLE 290 210 310 210 300 220 #FFC1CB`
     document.getElementById("vesForm").getElementsByTagName("button")[0].click()
 }
 
 function handleSubmit(e) {
 	e.preventDefault(); 
 	const ves = document.getElementById("ves").value; 
+    const width = canvas.width
+    const height = canvas.height
 
 	const formular = new URLSearchParams(); 
 	formular.append('ves', ves); 
+    formular.append('width', width); 
+    formular.append('height', height); 
 
 	const url = this.action; 
 	const method = this.method; 

@@ -1,16 +1,7 @@
 from io import BytesIO
 from flask import Flask, send_file, request, send_from_directory
-from ves import render_ves
+from Ves import ves as vesClass
 app = Flask(__name__)
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
-
-def serve_pil_image(img):
-    img_io = BytesIO()
-    img.save(img_io, 'JPEG', quality=70)
-    img_io.seek(0)
-    return send_file(img_io, mimetype='image/jpeg')
-
 
 @app.route('/', defaults={'path': ''}, methods=['GET'])
 @app.route('/<path:path>')
@@ -22,8 +13,11 @@ def base(path):
 
 @app.route('/render', methods=['GET', 'POST'])
 def rendVes():
-  ves = request.form.get('ves')
-  width = request.form.get('width')
-  print(ves)
-  img = render_ves()
-  return serve_pil_image(img)
+    vesObj = vesClass(vesStr=request.form["ves"])
+    scale = 1   #   *Should* make images fit the image 'window' better
+    if(vesObj.defHeight >= vesObj.defWidth):
+        scale = int(request.form["height"])/vesObj.defHeight
+    else:
+        scale = int(request.form["width"])/vesObj.defWidth
+    imgInMem = vesObj.getImage(scale = scale)
+    return send_file(imgInMem, mimetype="image/png")

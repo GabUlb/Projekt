@@ -33,6 +33,9 @@ class ves():
     return (self.convertSize(point[0], scales), self.convertSize(point[1], scales))
 
   def drawPoints(self, points, colour):  # This function is used to draw rasterised objects, ignores anything outside the bounds of the image
+    if(self.faster):
+      points = list(set(points))   # Removes duplicates, *should* make rendering faster, from limited testing ~4x faster, especially with bigger images
+    
     for point in points:
       if(point[0] < 0 or point[1] < 0 or point[0] >= self.image.width or point[1] >= self.image.height):
         pass
@@ -237,7 +240,7 @@ class ves():
     self.drawPoints(self.filledRectangle(A, width, height), colour)
 
   def vesWrapper(self, splitLine, scales):
-    return ("Version " + str(splitLine[1]) + "\n" + "File width " + str(splitLine[2]) + "\n" + "File height " + str(splitLine[3]))
+    print("Version " + str(splitLine[1]) + "\n" + "File width " + str(splitLine[2]) + "\n" + "File height " + str(splitLine[3]))
 
   def grayscale(self, splitline, scales):
     for x in range(self.image.width):
@@ -265,7 +268,7 @@ class ves():
           try:
             functions[commands.index(splitLine[0])](splitLine, scales)
           except ValueError:
-            return ("Syntax error on line "+str(onLine)+": Unknown command "+splitLine[0])
+            print("Syntax error on line "+str(onLine)+": Unknown command "+splitLine[0])
     else:
       onLine = 0
       for vesObj in self.objects:
@@ -273,7 +276,7 @@ class ves():
         try:
           functions[commands.index(vesObj.command)]([vesObj.command]+vesObj.attributes, scales)
         except ValueError:
-          return ("Syntax error on line "+str(onLine)+": Unknown command "+splitLine[0])
+          print("Syntax error on line "+str(onLine)+": Unknown command "+splitLine[0])
     
   def addObject(self, command, attributes, silent = 0):
     commands = ["CLEAR", "LINE", "RECT", "TRIANGLE", "CIRCLE", "FILL_CIRCLE", "FILL_TRIANGLE", "FILL_RECT", "VES", "GRAYSCALE"]
@@ -282,11 +285,11 @@ class ves():
       if(attributeNum[commands.index(command)] == len(attributes)):
         self.objects.append(self.vesObject(command.upper(), attributes))
         if(not silent):
-          return ("Object " + command.upper() + " with attributes " + str(attributes) + " added.")
+          print("Object " + command.upper() + " with attributes " + str(attributes) + " added.")
       else:
-        return  ("Incorrect number of attributes, command " + command.upper() + " requires " + attributeNum[commands.index(command)] + " attributes, " + len(attributes) + " were given.")
+        print("Incorrect number of attributes, command " + command.upper() + " requires " + attributeNum[commands.index(command)] + " attributes, " + len(attributes) + " were given.")
     else:
-      return ("Incorrect command.")
+      print("Incorrect command '"+command+"' .")
   
   def makeFile(self, path):
     with open(path, 'w') as file:
@@ -299,14 +302,12 @@ class ves():
     return (path)
 
   def show(self, scale = 1):
-    defWidth = int(self.objects[0].attributes[1])
-    defHeight = int(self.objects[0].attributes[2])
-    width = defWidth * scale
-    height = defHeight * scale
+    width = int(self.defWidth * scale)
+    height = int(self.defHeight * scale)
     # path = str(time())
     # self.makeFile(path)
     self.image = Image.new("RGB", (width, height), (255, 255, 255))
-    self.interpret([defWidth, defHeight, width, height], path = None)
+    self.interpret([self.defWidth, self.defHeight, width, height], path = None)
     display(self.image)
     # remove(path)
   # def gib(self):
@@ -322,18 +323,16 @@ class ves():
       # if(attr == None):
       #   attr = []
       # input()
-      self.addObject(splitLine[0].upper(), attr)
+      self.addObject(splitLine[0].upper(), attr, silent=1)
     
   def fromFile(self, file):
     raise NotImplementedError # Toto dokonci
     
   def getImage(self, scale = 1):
-    defWidth = int(self.objects[0].attributes[1])
-    defHeight = int(self.objects[0].attributes[2])
-    width = defWidth * scale
-    height = defHeight * scale
+    width = int(self.defWidth * scale)
+    height = int(self.defHeight * scale)
     self.image = Image.new("RGB", (width, height), (255, 255, 255))
-    self.interpret([defWidth, defHeight, width, height], path = None)
+    self.interpret([self.defWidth, self.defHeight, width, height], path = None)
     imgInMem = BytesIO()
     self.image.save(imgInMem, 'PNG', quality=70)
     imgInMem.seek(0)
@@ -343,12 +342,15 @@ class ves():
   def __init__(self, initial=None, vesStr=None, file=None):
     self.objects = []
     self.image = None
+    self.faster = 1
     if(initial != None):
       self.addObject('VES', initial)
     elif(vesStr != None):
       self.fromStr(vesStr)
     elif(file != None): 
       self.fromFile(file)
+    self.defWidth = int(self.objects[0].attributes[1])
+    self.defHeight = int(self.objects[0].attributes[2])
 
 if(__name__ == "__main__"): #Demo/test
   defWidth = 80
@@ -369,4 +371,4 @@ FILL_TRIANGLE 40 20 38 24 42 24 {bgColour}"""
   
   imgInMem = vesObj.getImage(scale = 4)
   with open("string.png", 'wb') as file:
-      file.write(imgInMem.getbuffer())
+    file.write(imgInMem.getbuffer())

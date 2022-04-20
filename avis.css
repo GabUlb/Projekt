@@ -63,7 +63,7 @@ input{
 #controls{
     position: absolute;
     top:110px;
-    left:960px;
+    right:50px;
     padding:10px;
     background-color: transparent;
     border: 1px solid white;
