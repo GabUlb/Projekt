@@ -115,7 +115,7 @@ var canvas,
 
 function init() {
     canvas = document.getElementById("canvas");
-    // context = canvas.getContext('2d');
+    context = canvas.getContext('2d');
     // var lineWidth = document.getElementById("lineWidth");
     //     fillColor = document.getElementById("fillColor");
     //     strokeColor = document.getElementById("strokeColor");
@@ -186,7 +186,13 @@ function handleSubmit(e) {
 	fetch(url, {method: method, body: formular}) 
 		.then((res) => res.blob()) 
 		.then((image) => {
-			document.getElementById("canvas").src = URL.createObjectURL(image);
+            var savedImage = new Image()
+            savedImage.onload = (event) => {
+                URL.revokeObjectURL(event.target.src)
+                context.drawImage(event.target, 0, 0)
+            }
+            savedImage.src = URL.createObjectURL(image);
+			// document.getElementById("canvas").src = imgLink
 		})
 }
 
