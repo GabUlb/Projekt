@@ -8,14 +8,32 @@ var canvas,
     waiting,
     requestNum,
     toAdd,
+    ves,
     identifier;
 
 
-function getCanvasCoordinates(event) {
+function getCanvasCoordinatesOld(event) {
     var x = event.clientX - canvas.getBoundingClientRect().left,
         y = event.clientY - canvas.getBoundingClientRect().top;
 
     return {x: Math.round(x), y: Math.round(y)};
+}
+
+function getCanvasCoordinates(event) {
+    coords = getCanvasCoordinatesOld(event)
+    firstLine = ves.value.split("\n")[0].split(" ")
+    fileWidth = firstLine[2]
+    fileHeight = firstLine[3]
+
+    scale = 1
+    if(fileHeight >= fileWidth){
+        scale = canvas.height/fileHeight
+    }
+    else{
+        scale = canvas.width/fileWidth
+    }
+
+    return {x: Math.round(coords.x * (1/scale)), y: Math.round(coords.y * (1/scale))};
 }
 
 // function takeSnapshot() {
@@ -82,7 +100,7 @@ function getCanvasCoordinates(event) {
 // }
 function dragStart(event) {
     dragging = true;
-    permanentVes = document.getElementById("ves").value + ""
+    permanentVes = ves.value + ""
     dragStartLocation = getCanvasCoordinates(event);
     requestNum += 1
     // takeSnapshot();
@@ -132,6 +150,7 @@ function init() {
     context = canvas.getContext('2d');
     requestNum = 0
     identifier = getRandomInt(2**16)
+    ves = document.getElementById("ves")
     var lineWidth = document.getElementById("lineWidth");
         fillColor = document.getElementById("fillColor");
         strokeColor = document.getElementById("strokeColor");
@@ -155,12 +174,12 @@ function init() {
 }
 
 function clearCanvas(){
-    document.getElementById("ves").value = "VES 1.0 800 500"
+    ves.value = "VES 1.0 800 500"
     document.getElementById("vesForm").getElementsByTagName("button")[0].click()
 }
 
 function showExample(){
-    document.getElementById("ves").value = `VES v1.0 600 400
+    ves.value = `VES v1.0 600 400
 CLEAR #A3D0D4
 #USI
 FILL_CIRCLE 230 120 40 #000000
@@ -193,12 +212,12 @@ function handleSubmit(e) {
             requestNum += 1000
         }
         waiting = true
-	    const ves = document.getElementById("ves").value; 
+	    const vesStr = ves.value; 
         const width = canvas.width
         const height = canvas.height
 
 	    const formular = new URLSearchParams(); 
-	    formular.append('ves', ves); 
+	    formular.append('ves', vesStr); 
         formular.append('width', width); 
         formular.append('height', height); 
         formular.append('requestNum', requestNum.toString() + ":" + identifier.toString())
@@ -223,7 +242,6 @@ function handleSubmit(e) {
 function addVes(permanent){
     shape = document.querySelector('input[type="radio"][name="shape"]:checked').value
     fillBox = document.getElementById("fillBox")
-    ves = document.getElementById("ves")
     ves.value = permanentVes
     toAdd = ""
     if (shape === "circle") {

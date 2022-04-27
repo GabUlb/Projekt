@@ -36,15 +36,13 @@ def rendVes():
         else:
             scale = int(request.form["width"])/vesObj.defWidth
         toAddOrig = request.form["toAdd"]
-        print(toAddOrig)
-        toAdd = ""
-        for line in toAddOrig.split("\n"):
-            splitLine = line.split()
-            toAdd += splitLine[0] + " "
-            for word in splitLine[1: -1]:
-                toAdd += str(int(int(word)*(1/scale))) + " "
-            toAdd += splitLine[-1] + "\n"
-        print(toAdd)
+        toAdd = toAddOrig
+        # for line in toAddOrig.split("\n"):
+        #     splitLine = line.split()
+        #     toAdd += splitLine[0] + " "
+        #     for word in splitLine[1: -1]:
+        #         toAdd += str(int(int(word)*(1/scale))) + " "
+        #     toAdd += splitLine[-1] + "\n"
         vesObj.fromStr(toAdd)
         imgInMem = vesObj.getImage(scale = scale)
         return send_file(imgInMem, mimetype="image/png")
