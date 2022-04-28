@@ -11,72 +11,70 @@
 <body>
 <div class="hlavicka">
     <div class="row">
-        <div class="text">
-            <p><h1>AVIS</h1></p>
-        </div>
-        <i class="fa-solid fa-feather" style="font-size:36px; color:white"></i>
+            <div class="text">
+                <p><h1>AVIS</h1></p>
+            </div>
+            <i class="fa-solid fa-feather" style="font-size:36px; color:white"></i>
     </div>
+    <div class='Border'>
+        <div class="row3">
+            <div class="lightBorder2">
+                    <div class="block">
+                        <form id="vesForm" class="input" action="/render" method="POST">
+                            <label for="ves">VES CODE</label>
+                            <textarea id="ves" rows="32"></textarea>
+                            <button type="submit">SUBMIT</button>
+                        </form>
+                    </div>
+            </div>
 
-    <div class="row">
-        <div class="block">
-            <!-- <form> -->
-                <div class="block">
-                    <!-- <div class="input">
-                        <label for="file">FILE</label>
-                        <textarea id="file" rows="1"></textarea>
-                    </div> -->
-                    <form id="vesForm" class="input" action="/render" method="POST">
-                        <label for="ves">VES CODE</label>
-                        <textarea id="ves" rows="18"></textarea>
-                        <button type="submit">SUBMIT</button>
-                    </form>
-                </div>
-            <!-- </form> -->
+            <canvas id="canvas" width="800" height="500"></canvas>
+
+            <div id="controls">  
+                    <div class="lightBorder">
+                        <div class="row">
+                            <p><label>Fill:</label></p>
+                            <br>
+                            <input id="fillColor" type="color" value="#E6E6FA">
+                        </div>
+                    </div>
+                    
+                    <div class="lightBorder">
+                        <div class="row">
+                            <p><label>Outline:</label></p>
+                            <input id="strokeColor" type="color" value="#B0E0E6">
+                        </div>
+                    </div>
+
+                    <div class="lightBorder">
+                        <div class="row">
+                            <p><label>Width:<br></label></p>
+                            <input id="lineWidth" type="range" step="1" min="1" max="100" value="4" style="width: 180px;">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="lightBorder">
+                        <div class="row2">
+                            <p><input id="fillBox" type="checkbox" checked="checked">Filled</p>
+                            <p><input type="radio" name="shape" value="line" checked="checked">Line</p>
+                            <p><input type="radio" name="shape" value="circle">Circle</p>
+                            <p><input type="radio" name="shape" value="polygon">Polygon</p>
+                        </div>
+                    </div>
+                    <div class="lightBorder">
+                        <p><label>Polygon Sides: <input id="polygonSides" type="range" step="1" min="3" max="4"></label></p>
+                    </div>
+                    <br>
+                    <br>
+                    <button id="clearCanvas" type="button" onclick="clearCanvas()">Clear</button>
+                    <br>
+                    <button type="button" onclick="grayscale()">Black&White</button> 
+                    <br>
+                    <button type="button" onclick="showExample()">Example</button>
+
+            </div>
         </div>
-
-        <canvas id="canvas" width="800" height="500"></canvas>
-
-        <div id="controls">  
-                <div class="lightBorder">
-                    <div class="row">
-                        <p><label>Fill:</label></p>
-                        <br>
-                        <input id="fillColor" type="color" value="#E6E6FA">
-                    </div>
-                </div>
-                
-                <div class="lightBorder">
-                    <div class="row">
-                        <p><label>Outline:</label></p>
-                        <input id="strokeColor" type="color" value="#B0E0E6">
-                    </div>
-                </div>
-
-                <div class="lightBorder">
-                    <div class="row">
-                        <p><label>Width:<br></label></p>
-                        <input id="lineWidth" type="range" step="1" min="1" max="100" value="4" style="width: 180px;">
-                    </div>
-                </div>
-
-                <div class="lightBorder">
-                    <div class="row2">
-                        <p><input id="fillBox" type="checkbox" checked="checked">Filled</p>
-                        <p><input type="radio" name="shape" value="line" checked="checked">Line</p>
-                        <p><input type="radio" name="shape" value="circle">Circle</p>
-                        <p><input type="radio" name="shape" value="polygon">Polygon</p>
-                    </div>
-                </div>
-                <div class="lightBorder">
-                    <p><label>Polygon Sides: <input id="polygonSides" type="range" step="1" min="3" max="4"></label></p>
-                </div>
-
-                <br>
-                <button id="clearCanvas" type="button" onclick="clearCanvas()">Clear</button>
-                <br>
-                <br>
-                <button type="button" onclick="showExample()">Example</button> 
-        </div>
+    </div>
 </div>
 </body>
 </html>

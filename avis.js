@@ -178,6 +178,11 @@ function clearCanvas(){
     document.getElementById("vesForm").getElementsByTagName("button")[0].click()
 }
 
+function grayscale(){
+    ves.value += "\nGRAYSCALE"
+    document.getElementById("vesForm").getElementsByTagName("button")[0].click()
+}
+
 function showExample(){
     ves.value = `VES v1.0 600 400
 CLEAR #A3D0D4
@@ -248,7 +253,7 @@ function addVes(permanent){
         radius = Math.round(Math.sqrt(Math.pow((dragStartLocation.x - currentPosition.x), 2) + Math.pow((dragStartLocation.y - currentPosition.y), 2)));
         if (fillBox.checked){
             toAdd += "FILL_CIRCLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+radius+" "+fillColor.value+"\n"
-        }  // TODO: Add variable thickness
+        }  
         toAdd += "CIRCLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+radius+" "+lineWidth.value+" "+strokeColor.value
     }
     if (shape === "line") {
@@ -261,13 +266,13 @@ function addVes(permanent){
         if(polygonSides = document.getElementById("polygonSides").value == 4){
             if (fillBox.checked){
                 toAdd += "FILL_RECT "+dragStartLocation.x+" "+dragStartLocation.y+" "+(currentPosition.x-dragStartLocation.x)+" "+(currentPosition.y-dragStartLocation.y)+" "+fillColor.value+"\n"
-            }  // TODO: Add variable thickness
+            }  
             toAdd += "RECT "+dragStartLocation.x+" "+dragStartLocation.y+" "+(currentPosition.x-dragStartLocation.x)+" "+(currentPosition.y-dragStartLocation.y)+" "+lineWidth.value+" "+strokeColor.value
         }
         else if(polygonSides = document.getElementById("polygonSides").value == 3){
             if (fillBox.checked){
                 toAdd += "FILL_TRIANGLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+currentPosition.x+" "+dragStartLocation.y+" "+Math.round((currentPosition.x+dragStartLocation.x)/2)+" "+currentPosition.y+" "+fillColor.value+"\n"
-            }  // TODO: Add variable thickness
+            }  
             toAdd += "TRIANGLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+currentPosition.x+" "+dragStartLocation.y+" "+Math.round((currentPosition.x+dragStartLocation.x)/2)+" "+currentPosition.y+" "+lineWidth.value+" "+strokeColor.value
         }
     }
