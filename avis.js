@@ -2,15 +2,39 @@ var canvas,
     context,
     dragging = false,
     dragStartLocation,
-    snapshot;
+    snapshot,
+    permanentVes,
+    currentPosition,
+    waiting,
+    requestNum,
+    toAdd,
+    ves,
+    identifier;
 
 
-// function getCanvasCoordinates(event) {
-//     var x = event.clientX - canvas.getBoundingClientRect().left,
-//         y = event.clientY - canvas.getBoundingClientRect().top;
+function getCanvasCoordinatesOld(event) {
+    var x = event.clientX - canvas.getBoundingClientRect().left,
+        y = event.clientY - canvas.getBoundingClientRect().top;
 
-//     return {x: x, y: y};
-// }
+    return {x: Math.round(x), y: Math.round(y)};
+}
+
+function getCanvasCoordinates(event) {
+    coords = getCanvasCoordinatesOld(event)
+    firstLine = ves.value.split("\n")[0].split(" ")
+    fileWidth = firstLine[2]
+    fileHeight = firstLine[3]
+
+    scale = 1
+    if(fileHeight >= fileWidth){
+        scale = canvas.height/fileHeight
+    }
+    else{
+        scale = canvas.width/fileWidth
+    }
+
+    return {x: Math.round(coords.x * (1/scale)), y: Math.round(coords.y * (1/scale))};
+}
 
 // function takeSnapshot() {
 //     snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
@@ -74,51 +98,62 @@ var canvas,
 //         context.stroke();
 //     }
 // }
-// function dragStart(event) {
-//     dragging = true;
-//     dragStartLocation = getCanvasCoordinates(event);
-//     takeSnapshot();
-// }
+function dragStart(event) {
+    dragging = true;
+    permanentVes = ves.value + ""
+    dragStartLocation = getCanvasCoordinates(event);
+    requestNum += 1
+    // takeSnapshot();
+}
 
-// function drag(event) {
-//     var position;
-//     if (dragging === true) {
-//         restoreSnapshot();
-//         position = getCanvasCoordinates(event);
-//         draw(position, "polygon");
-//     }
-// }
+function drag(event) {
+    if (dragging === true) {
+        // restoreSnapshot();
+        currentPosition = getCanvasCoordinates(event);
+        // draw(position, "polygon");
+        addVes(false)
+        document.getElementById("vesForm").getElementsByTagName("button")[0].click()
+    }
+}
 
-// function dragStop(event) {
-//     dragging = false;
-//     restoreSnapshot();
-//     var position = getCanvasCoordinates(event);
-//     draw(position, "polygon");
-// }
+function dragStop(event) {
+    dragging = false;
+    // restoreSnapshot();
+    currentPosition = getCanvasCoordinates(event);
+    // draw(position, "polygon");
+}
 
-// function changeFillStyle(){
-//     context.fillStyle = this.value;
-//     event.stopPropagation();
-// }
-// function changeLineWidth(){
-//     context.lineWidth= this.value;
-//     event.stopPropagation();
-// }
-// function changeStrokeStyle(){
-//     context.strokeStyle= this.value;
-//     event.stopPropagation();
-// }
+function changeFillStyle(){
+    context.fillStyle = this.value;
+    event.stopPropagation();
+}
+function changeLineWidth(){
+    context.lineWidth= this.value;
+    event.stopPropagation();
+}
+function changeStrokeStyle(){
+    context.strokeStyle= this.value;
+    event.stopPropagation();
+}
 
 // function eraseCanvas() {
 //     context.clearRect(0,0,canvas.width, canvas.height);
 // }
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
 function init() {
+    waiting = false
     canvas = document.getElementById("canvas");
-    // context = canvas.getContext('2d');
-    // var lineWidth = document.getElementById("lineWidth");
-    //     fillColor = document.getElementById("fillColor");
-    //     strokeColor = document.getElementById("strokeColor");
+    context = canvas.getContext('2d');
+    requestNum = 0
+    identifier = getRandomInt(2**16)
+    ves = document.getElementById("ves")
+    var lineWidth = document.getElementById("lineWidth");
+        fillColor = document.getElementById("fillColor");
+        strokeColor = document.getElementById("strokeColor");
     //     clearCanvas = document.getElementById("clearCanvas");
 
     // context.fillStyle = fillColor.value;
@@ -127,24 +162,29 @@ function init() {
     // context.lineCap = 'round';
 
 
-    // canvas.addEventListener('mousedown', dragStart, false);
-    // canvas.addEventListener('mousemove', drag, false);
-    // canvas.addEventListener('mouseup', dragStop, false);
-    // lineWidth.addEventListener('input', changeLineWidth, false);
-    // fillColor.addEventListener('input', changeFillStyle, false);
-    // strokeColor.addEventListener('input', changeStrokeStyle, false);
+    canvas.addEventListener('mousedown', dragStart, false);
+    canvas.addEventListener('mousemove', drag, false);
+    canvas.addEventListener('mouseup', dragStop, false);
+    lineWidth.addEventListener('input', changeLineWidth, false);
+    fillColor.addEventListener('input', changeFillStyle, false);
+    strokeColor.addEventListener('input', changeStrokeStyle, false);
     // clearCanvas.addEventListener('click', eraseCanvas, false);
     document.getElementById("vesForm").addEventListener("submit", handleSubmit);
     clearCanvas()
 }
 
 function clearCanvas(){
-    document.getElementById("ves").value = "VES 1.0 800 500"
+    ves.value = "VES 1.0 800 500"
+    document.getElementById("vesForm").getElementsByTagName("button")[0].click()
+}
+
+function grayscale(){
+    ves.value += "\nGRAYSCALE"
     document.getElementById("vesForm").getElementsByTagName("button")[0].click()
 }
 
 function showExample(){
-    document.getElementById("ves").value = `VES v1.0 600 400
+    ves.value = `VES v1.0 600 400
 CLEAR #A3D0D4
 #USI
 FILL_CIRCLE 230 120 40 #000000
@@ -172,22 +212,71 @@ FILL_TRIANGLE 290 210 310 210 300 220 #FFC1CB`
 
 function handleSubmit(e) {
 	e.preventDefault(); 
-	const ves = document.getElementById("ves").value; 
-    const width = canvas.width
-    const height = canvas.height
+    if(!waiting){
+        if(!dragging){
+            requestNum += 1000
+        }
+        waiting = true
+	    const vesStr = ves.value; 
+        const width = canvas.width
+        const height = canvas.height
 
-	const formular = new URLSearchParams(); 
-	formular.append('ves', ves); 
-    formular.append('width', width); 
-    formular.append('height', height); 
+	    const formular = new URLSearchParams(); 
+	    formular.append('ves', vesStr); 
+        formular.append('width', width); 
+        formular.append('height', height); 
+        formular.append('requestNum', requestNum.toString() + ":" + identifier.toString())
+        formular.append('toAdd', toAdd)
 
-	const url = this.action; 
-	const method = this.method; 
-	fetch(url, {method: method, body: formular}) 
-		.then((res) => res.blob()) 
-		.then((image) => {
-			document.getElementById("canvas").src = URL.createObjectURL(image);
-		})
+	    const url = this.action; 
+	    const method = this.method; 
+	    fetch(url, {method: method, body: formular}) 
+	    	.then((res) => res.blob()) 
+	    	.then((image) => {
+                var savedImage = new Image()
+                savedImage.onload = (event) => {
+                    URL.revokeObjectURL(event.target.src)
+                    context.drawImage(event.target, 0, 0)
+                }
+                savedImage.src = URL.createObjectURL(image);
+                waiting = false
+	    })
+    }
+}
+
+function addVes(permanent){
+    shape = document.querySelector('input[type="radio"][name="shape"]:checked').value
+    fillBox = document.getElementById("fillBox")
+    ves.value = permanentVes
+    toAdd = ""
+    if (shape === "circle") {
+        radius = Math.round(Math.sqrt(Math.pow((dragStartLocation.x - currentPosition.x), 2) + Math.pow((dragStartLocation.y - currentPosition.y), 2)));
+        if (fillBox.checked){
+            toAdd += "FILL_CIRCLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+radius+" "+fillColor.value+"\n"
+        }  
+        toAdd += "CIRCLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+radius+" "+lineWidth.value+" "+strokeColor.value
+    }
+    if (shape === "line") {
+        toAdd += "LINE "+dragStartLocation.x+" "+dragStartLocation.y+" "+currentPosition.x+" "+currentPosition.y+" "+lineWidth.value+" "+strokeColor.value
+        if (fillBox.checked){
+            toAdd += "\nLINE "+dragStartLocation.x+" "+dragStartLocation.y+" "+currentPosition.x+" "+currentPosition.y+" "+Math.round(lineWidth.value/2)+" "+fillColor.value
+        }
+    }
+    if (shape === "polygon") {
+        if(polygonSides = document.getElementById("polygonSides").value == 4){
+            if (fillBox.checked){
+                toAdd += "FILL_RECT "+dragStartLocation.x+" "+dragStartLocation.y+" "+(currentPosition.x-dragStartLocation.x)+" "+(currentPosition.y-dragStartLocation.y)+" "+fillColor.value+"\n"
+            }  
+            toAdd += "RECT "+dragStartLocation.x+" "+dragStartLocation.y+" "+(currentPosition.x-dragStartLocation.x)+" "+(currentPosition.y-dragStartLocation.y)+" "+lineWidth.value+" "+strokeColor.value
+        }
+        else if(polygonSides = document.getElementById("polygonSides").value == 3){
+            if (fillBox.checked){
+                toAdd += "FILL_TRIANGLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+currentPosition.x+" "+dragStartLocation.y+" "+Math.round((currentPosition.x+dragStartLocation.x)/2)+" "+currentPosition.y+" "+fillColor.value+"\n"
+            }  
+            toAdd += "TRIANGLE "+dragStartLocation.x+" "+dragStartLocation.y+" "+currentPosition.x+" "+dragStartLocation.y+" "+Math.round((currentPosition.x+dragStartLocation.x)/2)+" "+currentPosition.y+" "+lineWidth.value+" "+strokeColor.value
+        }
+    }
+    ves.value = permanentVes + "\n" + toAdd
 }
 
 window.addEventListener('load', init, false);

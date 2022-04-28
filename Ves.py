@@ -16,12 +16,14 @@ from time import time
 from PIL import Image
 from os import remove
 from io import BytesIO
+from copy import deepcopy
 
 class ves():
   class vesObject():
     def __init__(self, command, attributes):
       self.command = command
       self.attributes = attributes
+      self.rendered = False
 
   # All the convert functions are simple, not gonna say anything more than this
   def convertSize(self, size, scales):
@@ -69,7 +71,7 @@ class ves():
         for x in range(min(A[0], B[0]), max(A[0], B[0])+ 1):
           y = int(k * (x - A[0]) + A[1])
           points.append((x,y))
-    return points
+    return list(set(points))
 
 
   def circle(self, S, r): # Circle with 8 symetrical points
@@ -85,7 +87,7 @@ class ves():
       points.append((-y + S[0], x + S[1]))
       points.append((-y + S[0], -x + S[1]))
     
-    return points
+    return list(set(points))
 
   def filledCircle(self, S, r): # Same as above, but the inside is "painted" using lines  
     points = []
@@ -95,14 +97,14 @@ class ves():
       points += (self.line((y + S[0], x + S[1]), (y + S[0], -x + S[1])))
       points += (self.line((-x + S[0], y + S[1]), (-x + S[0], -y + S[1])))
       points += (self.line((-y + S[0], -x + S[1]), (-y + S[0], x + S[1])))
-    return points    
+    return list(set(points))    
 
   def triangle(self, A, B, C):  # Come on now, does this need a comment?
     points = []
     points += self.line(A, B)
     points += self.line(A, C)
     points += self.line(B, C)
-    return points
+    return list(set(points))
 
   def getY(self, point):
     return point[1]
@@ -125,7 +127,7 @@ class ves():
         if(x[1] == y and x[0] > x2):
           x2 = x[0]
       points += self.line((x2, y), (x1, y))
-    return points
+    return list(set(points))
 
   def rectangle(self, A, width, height):  # This is a comment
     points = []
@@ -133,19 +135,19 @@ class ves():
     points += self.line(A, (A[0], A[1]+height))
     points += self.line((A[0]+width, A[1]), (A[0]+width, A[1]+height))
     points += self.line((A[0], A[1]+height), (A[0]+width, A[1]+height))
-    return points
+    return list(set(points))
 
   def filledRectangle(self, A, width, height):  # This is also a comment
     points = []
     points += self.filledTriangle(A, (A[0]+width, A[1]), (A[0], A[1]+height))
     points += self.filledTriangle((A[0]+width, A[1]+height), (A[0]+width, A[1]), (A[0], A[1]+height))
-    return points
+    return list(set(points))
 
   def theThiccening(self, inPoints, thiccness): # Oh my god! Look at all this thiccness!
     points = []
     for point in inPoints:
       points += self.filledCircle(point, thiccness/2)
-    return points
+    return list(set(points))
 
   def thiccLine(self, A, B, thiccness):
     return self.theThiccening(self.line(A, B), thiccness)
@@ -273,10 +275,12 @@ class ves():
       onLine = 0
       for vesObj in self.objects:
         onLine += 1
-        try:
-          functions[commands.index(vesObj.command)]([vesObj.command]+vesObj.attributes, scales)
-        except ValueError:
-          print("Syntax error on line "+str(onLine)+": Unknown command "+splitLine[0])
+        if(not vesObj.rendered):
+          try:
+            functions[commands.index(vesObj.command)]([vesObj.command]+vesObj.attributes, scales)
+            vesObj.rendered = True
+          except ValueError:
+            print("Syntax error on line "+str(onLine)+": Unknown command "+splitLine[0])
     
   def addObject(self, command, attributes, silent = 0):
     commands = ["CLEAR", "LINE", "RECT", "TRIANGLE", "CIRCLE", "FILL_CIRCLE", "FILL_TRIANGLE", "FILL_RECT", "VES", "GRAYSCALE"]
@@ -327,11 +331,18 @@ class ves():
     
   def fromFile(self, file):
     raise NotImplementedError # Toto dokonci
+  
+  def prerendered(self, prerenderedVes):
+    self.image = deepcopy(prerenderedVes.image)
+    self.objects = deepcopy(prerenderedVes.objects)
+    self.defWidth = deepcopy(prerenderedVes.defWidth)
+    self.defHeight = deepcopy(prerenderedVes.defHeight)
     
   def getImage(self, scale = 1):
     width = int(self.defWidth * scale)
     height = int(self.defHeight * scale)
-    self.image = Image.new("RGB", (width, height), (255, 255, 255))
+    if(not self.objects[0].rendered):
+      self.image = Image.new("RGB", (width, height), (255, 255, 255))
     self.interpret([self.defWidth, self.defHeight, width, height], path = None)
     imgInMem = BytesIO()
     self.image.save(imgInMem, 'PNG', quality=70)
@@ -367,8 +378,17 @@ FILL_TRIANGLE 25 24 25 29 29 26.4 {bgColour}
 FILL_TRIANGLE 55 24 55 29 51 26.4 {bgColour}
 FILL_TRIANGLE 40 20 38 24 42 24 {bgColour}"""
   
+  startTime = time()
   vesObj = ves(vesStr=vesStr)
-  
-  imgInMem = vesObj.getImage(scale = 4)
+  imgInMem = vesObj.getImage(scale = 32)
   with open("string.png", 'wb') as file:
     file.write(imgInMem.getbuffer())
+  print(time() - startTime)
+  
+  startTime = time()
+  vesObj2 = ves(initial=["1.0", defWidth, defHeight])
+  vesObj2.prerendered(vesObj)
+  imgInMem = vesObj2.getImage(scale = 32)
+  with open("string2.png", 'wb') as file:
+    file.write(imgInMem.getbuffer())
+  print(time() - startTime)

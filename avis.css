@@ -7,7 +7,7 @@
 	align-items: center;
 }
 .form{
-	width: 90%;
+	width: 100%;
 	max-width: 600px;
 	border-left: 100px;
 }
@@ -19,6 +19,11 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	margin: 3px;
+}
+.row3{
+	display: flex;
+	justify-content: space-around;
 }
 
 label{
@@ -32,11 +37,9 @@ label{
 }
 
 canvas{
-    border: 1px solid black;
+    border: 1px solid white;
     background-color: white;
-    position: absolute; 
     left: 290px;
-    top:100px;
 }
 *{
     border:0;
@@ -56,14 +59,11 @@ input{
 }
 
 .block{
-	justify-content: space-around;
 	padding: 10px;
 }
 
 #controls{
-    position: absolute;
-    top:110px;
-    right:50px;
+    left:960px;
     padding:10px;
     background-color: transparent;
     border: 1px solid white;
@@ -71,17 +71,24 @@ input{
 }
 
 .lightBorder {
-    border: 1px solid #fff;
 	margin-top: 10px;
 	margin-bottom: 10px;
+    border: 1px solid #fff;
 	position: relative;
 	color: #fff;
+}
+.lightBorder2 {
+    border: 1px solid #fff;
+	position: relative;
+	color: #fff;
+}
+.Border {
+	margin-left: 10px;
+	width: 98%;
+	margin-top: 10px;
 	margin-bottom: 10px;
 }
 
-p{
-    margin: 4px;
-}
 textarea{
 	width: 90%;
 	padding: 10px;
@@ -103,12 +110,6 @@ button{
 	width: 100%;
 	cursor: pointer;
 	margin-bottom: 5px;
-}
-
-input:focus~label,
-textarea:focus~label{
-	top: -35px;
-	font-size: 14px;
 }
 
 .text{
